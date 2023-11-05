@@ -1,9 +1,7 @@
 <html>
 	<head>
 		{% load static %}
-		{% include 'header.html' %}
-		{% block head %}
-		{% endblock %}
+	
 		
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,6 +25,23 @@
 	<link rel="stylesoeet" href="{% static 'css/owl.theme.default.min.css' %}">
 	<link rel="stylesheet" href="{% static 'https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css' %}" media="screen">
 	</head>
+	 <!-- header section start -->
+	 <div class="header_section">
+        <div class="container-fluid header_main">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+           <a class="logo" href="index.html"></a> 
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login/">Logout</a>
+                     </li>
+                </ul>
+            </div>
+        </nav>
+        </div>
 	<br><br>
 <body>
 <div class="container">
