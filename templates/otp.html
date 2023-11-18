@@ -32,7 +32,7 @@
 	<center>
 <div class="container">
 	<h2>Password Update</h2>
-	<form method="POST">
+	<form  method="POST">
 		{% csrf_token %}
 	    {% if mesage is defined and mesage %}
 			<div class="alert alert-warning">{{ mesage }}</div>

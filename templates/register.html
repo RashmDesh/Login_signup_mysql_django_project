@@ -35,10 +35,11 @@
 <body>
 <div class="container">
 	<h2>User Registration</h2>
+	<h2>{{msg}}</h2>
 	<form  method="POST">
 		{% csrf_token %}
         {% if mesage is defined and mesage %}
-			<div class="alert alert-warning">{{ mesage }}</div>
+			<div class="alert alert-warning">{{ mesage}}</div>
 		{% endif %}
 		<div class="form-group">
 			<label for="name">Name:</label>

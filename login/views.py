@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 OTP=""
+email=""
+newpass_encode=""
 
 def generateOTP() :
     digits = "0123456789"
@@ -19,6 +21,29 @@ def generateOTP() :
        create_OTP += digits[math.floor(random.random() * 10)]
  
     return create_OTP
+
+def validate_password(password: str):
+    if len(password)>=8:
+        lower = 0
+        upper = 0
+        special = 0
+        number = 0
+        for i in password:
+            if i.islower():
+                lower += 1
+            
+            elif i.isupper():
+                upper += 1
+
+            elif i.isnumeric():
+                number += 1
+
+            elif i in "~!@#$%^&*()_[]()":
+                special += 1
+
+        if lower>=1 and upper>=1 and number>=1 and special>=1:
+                return True
+    return False
 
 
 # Create your views here.
@@ -30,7 +55,8 @@ def login(request):
         try:
             Registeruser.objects.get(email=email)
         except:
-             return HttpResponse("User does not exists. ")
+            msg="User does not exiat"
+            return render(request,"login.html",{"msg":msg})
             
         else:
             obj=Registeruser.objects.get(email=email)
@@ -40,30 +66,13 @@ def login(request):
             decode_pass=pbkdf2_sha256.verify(password,getpass)
 
             if obj.email==email and decode_pass == True:
+                    request.session["email"]=email
+                   # request.session["islogin"]="true"
                     context= {'data':name}
                     return render(request,"result.html",context)
             else:
-                    return HttpResponse("Please check password")
-
-
-        '''
-        if Registeruser.objects.get(email=email):
-                obj=Registeruser.objects.get(email=email)
-                name=obj.name
-                getpass=obj.password
-
-                decode_pass=pbkdf2_sha256.verify(password,getpass)
-
-                if obj.email==email and decode_pass == True:
-                    context= {'data':name}
-                    return render(request,"result.html",context)
-                else:
-                    return HttpResponse("Please check password")
-                
-        else:
-            return HttpResponse("Please check usernam ")
-       
-       '''
+                    msg="Invalid password"
+                    return render(request,"login.html",{"msg":msg})
     return render(request,"login.html")
 
 '''
@@ -79,43 +88,54 @@ def update(request):
         oldpassword=request.POST.get('oldpassword')
         newpassword=request.POST.get('newpassword')
 
+        
         newpass_encode= pbkdf2_sha256.hash(newpassword)
+        request.session['email']=email
+        request.session['newpassword']=newpass_encode
 
-        '''
         try:
-            obj=Registeruser.objects.get(email=email)
+            Registeruser.objects.get(email=email)
         except:
              return HttpResponse("User does not exists. ")
             
         else: 
-        '''
-        obj=Registeruser.objects.get(email=email)
-        obj.password=newpass_encode
-        obj.save()
+            obj=Registeruser.objects.get(email=email)
 
-        global OTP
-        OTP=generateOTP()
-        subject = 'OTP for password change'
-        message = f'Hi,{obj.name} \n OPT is :{OTP}'
-        email_from = settings.EMAIL_HOST_USER
-        recipient_list = [email]
-        send_mail( subject, message, email_from, recipient_list )
-        return redirect("/login/otp/")
+            OTP=generateOTP()
+            request.session['otp']=OTP
+            subject = 'OTP for password change'
+            message = f'Hi,{obj.name} \n OPT is :{OTP}'
+            email_from = settings.EMAIL_HOST_USER
+            recipient_list = [email]
+            send_mail( subject, message, email_from, recipient_list )
+           
+            return redirect("/login/otp/")
+           # return render(request,"otp.html")
 
     return render(request,"updatepassword.html")
 
 def otp(request):
     if request.method == "POST":
         otp=request.POST.get('otp')
-        global OTP
-        if OTP == otp:
-            return redirect("/login/otpresult/")
+        otp_session=request.session["otp"]
+        email=request.session["email"]
+        if otp==otp_session:
+            obj=Registeruser.objects.get(email=email)
+            newpass_encode=request.session['newpassword']
+            obj.password=newpass_encode
+            obj.save()
+            return  render(request,"otp_result.html")
         else:
-            return HttpResponse("Incorrect OTP")
+            msg="Incorrect OTP"
+            return render(request,"otp.html",{"msg":msg})
     
     if request.method=="GET":
-         return render(request,"otp.html")
+        return render(request,"otp.html")
     
 
-def optresult(request):
-     return render(request,"otp_result.html")
+def logout(request):
+    try:
+        del request.session['email']
+    except:
+        return redirect('/login/')
+    return redirect('/login/')
